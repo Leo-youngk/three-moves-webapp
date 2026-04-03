@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, CircleAlert } from "lucide-react";
 import { AppShell } from "./app-shell";
+import { ReminderToggle } from "./reminder-toggle";
 import { getReminderSlot } from "@/lib/constants/reminders";
 import { useThreeMovesStore } from "@/hooks/use-three-moves-store";
 
@@ -37,7 +38,7 @@ export function ReminderPage({ slotId }: { slotId?: string }) {
   return (
     <AppShell
       title="Reminder"
-      subtitle="提醒页只展示文案和今天三件事，不做通知投递。"
+      subtitle="提醒页只负责展示当前时段、今天三件事和最小提醒开关。"
       notice={issue?.message ?? null}
     >
       {!ready ? (
@@ -53,6 +54,8 @@ export function ReminderPage({ slotId }: { slotId?: string }) {
             </div>
             <p className="text-[18px] leading-9 text-[#2b1a0c]">{slot.question}</p>
           </div>
+
+          <ReminderToggle />
 
           <div className="rounded-[28px] border border-[#dcc8ad] bg-white/80 p-5">
             <div className="mb-4 flex items-center gap-2 text-sm text-[#6f5338]">
