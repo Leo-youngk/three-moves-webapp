@@ -5,10 +5,11 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { Clock3, House, MoonStar, NotebookText, Bell } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/constants/navigation";
+import { PRIMARY_REMINDER_PATH } from "@/lib/reminders/config";
 
 const iconMap = {
   "/": House,
-  "/reminder/1": Bell,
+  [PRIMARY_REMINDER_PATH]: Bell,
   "/night": MoonStar,
   "/history": NotebookText,
 } as const;
@@ -75,14 +76,14 @@ export function AppShell({
           <div className="flex flex-col items-end gap-2">
             <div className="rounded-full border border-[#d8c2a3] bg-white/70 px-3 py-2 text-xs text-[#7b5a3e] shadow-sm backdrop-blur">
               <Clock3 className="mr-1 inline-block h-3.5 w-3.5" />
-              Local first
+              本地优先
             </div>
             <Link
               href="/install"
               className="inline-flex items-center rounded-full border border-[#dcc8ad] bg-white/70 px-3 py-1.5 text-[11px] font-medium text-[#7b5a3e] shadow-sm backdrop-blur transition hover:bg-[#f7efdf] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b06a1a] focus-visible:ring-offset-2 focus-visible:ring-offset-[#f4ecde]"
-              aria-label="Install Three Moves on iPhone"
+              aria-label="在 iPhone 上安装 Three Moves"
             >
-              Install
+              安装
             </Link>
           </div>
         </header>
@@ -107,7 +108,7 @@ export function AppShell({
       >
         <div className="mx-auto flex w-full max-w-md items-center justify-between rounded-full border border-[#d8c2a3] bg-[#fbf6ed]/90 px-2 py-2 shadow-[0_12px_32px_rgba(85,54,22,0.12)] backdrop-blur">
           {NAV_ITEMS.map((item) => {
-            const isActive = pathname === item.href || (item.href === "/reminder/1" && pathname?.startsWith("/reminder"));
+            const isActive = pathname === item.href || (item.href === PRIMARY_REMINDER_PATH && pathname?.startsWith("/reminder"));
             const Icon = iconMap[item.href];
 
             return (

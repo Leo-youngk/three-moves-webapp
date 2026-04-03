@@ -6,6 +6,7 @@ import { ChevronRight, Save } from "lucide-react";
 import { AppShell } from "./app-shell";
 import { useThreeMovesStore } from "@/hooks/use-three-moves-store";
 import { type DailyEntry } from "@/lib/domain/daily-entry";
+import { PRIMARY_REMINDER_PATH } from "@/lib/reminders/config";
 
 function TodayLoadingState() {
   return (
@@ -98,7 +99,7 @@ function TodayForm({
           保存今天
         </button>
         <Link
-          href="/reminder/1"
+          href={PRIMARY_REMINDER_PATH}
           className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-[#dcc8ad] bg-white/70 px-5 py-3 text-sm font-medium text-[#6f5338] transition hover:bg-[#f7efdf] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b06a1a] focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffaf2]"
         >
           去提醒

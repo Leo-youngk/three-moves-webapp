@@ -1,7 +1,7 @@
 {
   "name": "Three Moves",
-  "short_name": "3 Moves",
-  "description": "Local-first daily reflection web app for three priorities, reminders, and nightly review.",
+  "short_name": "Three Moves",
+  "description": "Three Moves 是一个本地优先的日常记录 Web App，用于写下今天最重要的三件事、查看提醒和夜间回顾。",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

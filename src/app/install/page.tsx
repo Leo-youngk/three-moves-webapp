@@ -6,8 +6,8 @@ export const dynamic = "force-dynamic";
 export default function Page() {
   return (
     <AppShell
-      title="Install"
-      subtitle="Quick steps for adding Three Moves to your iPhone home screen."
+      title="安装"
+      subtitle="iPhone 上最短的安装路径：Safari 打开，分享，添加到主屏幕。"
     >
       <div className="mx-auto flex w-full max-w-xl flex-col gap-5">
         <InstallGuide />

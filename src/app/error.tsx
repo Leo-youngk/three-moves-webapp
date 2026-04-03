@@ -20,7 +20,7 @@ export default function Error({
         <p className="text-xs uppercase tracking-[0.34em] text-[#a77744]">Three Moves</p>
         <h1 className="mt-3 text-2xl font-semibold tracking-tight">页面出错了</h1>
         <p className="mt-3 text-sm leading-6 text-[#7b5a3e]">
-          当前页面运行时发生了错误。你可以先重试；如果问题持续，请回到首页继续操作。
+          当前页面运行时发生了错误。你可以先重试；如果问题持续，请返回首页继续操作。
         </p>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <button

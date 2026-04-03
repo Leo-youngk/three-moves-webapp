@@ -19,9 +19,16 @@ export const metadata: Metadata = {
     default: "Three Moves",
     template: "%s | Three Moves",
   },
-  description: "Local-first daily reflection web app for three priorities, reminders, and nightly review.",
+  description: "Three Moves 是一个本地优先的日常记录 Web App，用于写下今天最重要的三件事、查看提醒和夜间回顾。",
   applicationName: "Three Moves",
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "32x32", type: "image/x-icon" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   appleWebApp: {
     capable: true,
     title: "Three Moves",
