@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { Bell, BellOff, Loader2 } from "lucide-react";
-import { PRIMARY_REMINDER_PATH, PRIMARY_REMINDER_TIME, PRIMARY_REMINDER_SLOT_ID, REMINDER_TIMEZONE, getReminderPublicVapidKey } from "@/lib/reminders/config";
+import {
+  FIXED_REMINDER_PATH,
+  FIXED_REMINDER_TIME,
+  FIXED_REMINDER_SLOT_ID,
+  REMINDER_TIMEZONE,
+  getReminderPublicVapidKey,
+} from "@/lib/reminders/config";
 import { base64ToUint8Array } from "@/lib/reminders/push-client";
 import { getOrCreateReminderInstallId } from "@/lib/reminders/install-id";
 
@@ -39,7 +45,7 @@ export function ReminderToggle() {
 
         if (subscription) {
           setState("enabled");
-          setMessage(`已开启 ${PRIMARY_REMINDER_TIME} 固定提醒`);
+          setMessage(`已开启 ${FIXED_REMINDER_TIME} 固定提醒`);
           return;
         }
 
@@ -50,7 +56,7 @@ export function ReminderToggle() {
         }
 
         setState("disabled");
-        setMessage(`尚未开启 ${PRIMARY_REMINDER_TIME} 提醒`);
+        setMessage(`尚未开启 ${FIXED_REMINDER_TIME} 提醒`);
       } catch {
         if (!cancelled) {
           setState("error");
@@ -103,7 +109,7 @@ export function ReminderToggle() {
         }
 
         setState("disabled");
-        setMessage(`已关闭 ${PRIMARY_REMINDER_TIME} 提醒`);
+        setMessage(`已关闭 ${FIXED_REMINDER_TIME} 提醒`);
         return;
       }
 
@@ -140,7 +146,7 @@ export function ReminderToggle() {
         },
         body: JSON.stringify({
           installId,
-          slotId: PRIMARY_REMINDER_SLOT_ID,
+          slotId: FIXED_REMINDER_SLOT_ID,
           timezone,
           endpoint: normalized.endpoint,
           keys: {
@@ -159,7 +165,7 @@ export function ReminderToggle() {
       }
 
       setState("enabled");
-      setMessage(`已开启 ${PRIMARY_REMINDER_TIME} 固定提醒`);
+      setMessage(`已开启 ${FIXED_REMINDER_TIME} 固定提醒`);
     } catch {
       setState("error");
       setMessage("提醒设置失败，请稍后重试。");
@@ -175,7 +181,7 @@ export function ReminderToggle() {
           <p className="text-xs uppercase tracking-[0.24em] text-[#b2855e]">提醒</p>
           <h2 className="mt-2 text-xl font-semibold tracking-tight text-[#241407]">开启 19:00 固定提醒</h2>
           <p className="mt-2 text-sm leading-6 text-[#7b5a3e]">
-            只保留一个时段。加入主屏幕后，手机会在固定时间收到通知，点开后进入 {PRIMARY_REMINDER_PATH}。
+            只保留一个时段。加入主屏幕后，手机会在固定时间收到通知，点开后进入 {FIXED_REMINDER_PATH}。
           </p>
         </div>
         <div

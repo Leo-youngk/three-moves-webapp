@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { loadReminderSubscriptionIndex, revokeReminderSubscription, saveReminderSubscriptionIndex, upsertReminderSubscription } from "@/lib/reminders/server-store";
+import {
+  createReminderSubscriptionStore,
+  revokeReminderSubscription,
+  upsertReminderSubscription,
+} from "@/lib/reminders/server-store";
 import type { ReminderSubscriptionRecord } from "@/lib/reminders/types";
 
 export const runtime = "nodejs";
@@ -30,7 +34,8 @@ function isReminderSubscriptionRecord(value: unknown): value is ReminderSubscrip
 }
 
 export async function GET() {
-  const index = await loadReminderSubscriptionIndex();
+  const store = createReminderSubscriptionStore();
+  const index = await store.loadIndex();
   return NextResponse.json({
     ok: true,
     activeCount: Object.values(index.subscriptions).filter((subscription) => subscription.revokedAt === null).length,
@@ -49,9 +54,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const index = await loadReminderSubscriptionIndex();
+  const store = createReminderSubscriptionStore();
+  const index = await store.loadIndex();
   const nextIndex = upsertReminderSubscription(index, payload);
-  await saveReminderSubscriptionIndex(nextIndex);
+  await store.saveIndex(nextIndex);
 
   return NextResponse.json({
     ok: true,
@@ -71,9 +77,10 @@ export async function DELETE(request: Request) {
     );
   }
 
-  const index = await loadReminderSubscriptionIndex();
+  const store = createReminderSubscriptionStore();
+  const index = await store.loadIndex();
   const nextIndex = revokeReminderSubscription(index, payload.installId, new Date().toISOString());
-  await saveReminderSubscriptionIndex(nextIndex);
+  await store.saveIndex(nextIndex);
 
   return NextResponse.json({
     ok: true,

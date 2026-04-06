@@ -14,7 +14,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@vercel/kv": "^3.0.0",
+    "@cloudbase/node-sdk": "^3.18.1",
     "lucide-react": "^1.7.0",
     "next": "16.2.2",
     "react": "19.2.4",

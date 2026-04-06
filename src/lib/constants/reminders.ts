@@ -1,4 +1,5 @@
 import {
+  FIXED_REMINDER_SLOT_ID,
   PRIMARY_REMINDER_PATH,
   PRIMARY_REMINDER_SLOT_ID,
   PRIMARY_REMINDER_TIME,
@@ -53,6 +54,14 @@ export const REMINDER_SLOTS: ReminderSlot[] = [
 export { PRIMARY_REMINDER_PATH, PRIMARY_REMINDER_SLOT_ID, PRIMARY_REMINDER_TIME };
 
 export function getReminderSlot(slotId: string | undefined): ReminderSlot {
+  if (slotId === FIXED_REMINDER_SLOT_ID) {
+    return (
+      REMINDER_SLOTS.find((slot) => slot.id === PRIMARY_REMINDER_SLOT_ID) ??
+      REMINDER_SLOTS[4] ??
+      REMINDER_SLOTS[0]
+    );
+  }
+
   return (
     REMINDER_SLOTS.find((slot) => slot.id === slotId) ??
     REMINDER_SLOTS.find((slot) => slot.id === PRIMARY_REMINDER_SLOT_ID) ??

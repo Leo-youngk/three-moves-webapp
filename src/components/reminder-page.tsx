@@ -9,18 +9,12 @@ import { useThreeMovesStore } from "@/hooks/use-three-moves-store";
 
 function ReminderLoadingState() {
   return (
-    <div className="mx-auto flex w-full max-w-xl flex-col gap-5" aria-busy="true">
-      <div className="rounded-[28px] border border-[#dcc8ad] bg-[#fffaf2]/90 p-5">
-        <div className="h-4 w-28 rounded-full bg-[#eadbc4]" />
-        <div className="mt-4 h-24 rounded-2xl bg-[#f3e7d4]" />
-      </div>
-      <div className="rounded-[28px] border border-[#dcc8ad] bg-white/80 p-5">
-        <div className="h-4 w-24 rounded-full bg-[#eadbc4]" />
-        <div className="mt-4 space-y-3">
-          <div className="h-12 rounded-2xl bg-[#f3e7d4]" />
-          <div className="h-12 rounded-2xl bg-[#f3e7d4]" />
-          <div className="h-12 rounded-2xl bg-[#f3e7d4]" />
-        </div>
+    <div className="rounded-[28px] border border-[#dcc8ad] bg-white/80 p-5" aria-busy="true">
+      <div className="h-4 w-24 rounded-full bg-[#eadbc4]" />
+      <div className="mt-4 space-y-3">
+        <div className="h-12 rounded-2xl bg-[#f3e7d4]" />
+        <div className="h-12 rounded-2xl bg-[#f3e7d4]" />
+        <div className="h-12 rounded-2xl bg-[#f3e7d4]" />
       </div>
     </div>
   );
@@ -41,22 +35,22 @@ export function ReminderPage({ slotId }: { slotId?: string }) {
       subtitle="提醒页只负责展示当前时段、今天三件事和最小提醒开关。"
       notice={issue?.message ?? null}
     >
-      {!ready ? (
-        <ReminderLoadingState />
-      ) : (
-        <div className="mx-auto flex w-full max-w-xl flex-col gap-5">
-          <div className="rounded-[28px] border border-[#dcc8ad] bg-[#fffaf2]/90 p-5 shadow-[0_10px_30px_rgba(90,58,24,0.06)]">
-            <div className="mb-4 flex items-center justify-between">
-              <span className="rounded-full border border-[#e0cfba] bg-[#f7efe2] px-3 py-1 text-xs text-[#8f6c4a]">
-                {slot.time} · {slot.label}
-              </span>
-              <span className="text-xs uppercase tracking-[0.24em] text-[#b2855e]">Reminder</span>
-            </div>
-            <p className="text-[18px] leading-9 text-[#2b1a0c]">{slot.question}</p>
+      <div className="mx-auto flex w-full max-w-xl flex-col gap-5">
+        <div className="rounded-[28px] border border-[#dcc8ad] bg-[#fffaf2]/90 p-5 shadow-[0_10px_30px_rgba(90,58,24,0.06)]">
+          <div className="mb-4 flex items-center justify-between">
+            <span className="rounded-full border border-[#e0cfba] bg-[#f7efe2] px-3 py-1 text-xs text-[#8f6c4a]">
+              {slot.time} · {slot.label}
+            </span>
+            <span className="text-xs uppercase tracking-[0.24em] text-[#b2855e]">Reminder</span>
           </div>
+          <p className="text-[18px] leading-9 text-[#2b1a0c]">{slot.question}</p>
+        </div>
 
-          <ReminderToggle />
+        <ReminderToggle />
 
+        {!ready ? (
+          <ReminderLoadingState />
+        ) : (
           <div className="rounded-[28px] border border-[#dcc8ad] bg-white/80 p-5">
             <div className="mb-4 flex items-center gap-2 text-sm text-[#6f5338]">
               <CircleAlert className="h-4 w-4" />
@@ -65,7 +59,7 @@ export function ReminderPage({ slotId }: { slotId?: string }) {
 
             {!hasTodayItems ? (
               <div className="rounded-2xl border border-[#e0cfba] bg-[#fffaf2] px-4 py-4 text-sm leading-7 text-[#8f6c4a]">
-                今天还没有写内容，先去 Today 完成三件事，再回来查看提醒页。
+                你今天还没有填写内容，先去 Today 完成三件事，再回来查看提醒页。
               </div>
             ) : (
               <div className="space-y-3">
@@ -80,25 +74,25 @@ export function ReminderPage({ slotId }: { slotId?: string }) {
               </div>
             )}
           </div>
+        )}
 
-          <div className="flex gap-3">
-            <Link
-              href={`/reminder/${previous}`}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-[#dcc8ad] bg-white/70 px-4 py-3 text-sm text-[#6f5338] transition hover:bg-[#f7efdf] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b06a1a] focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffaf2]"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              上一个
-            </Link>
-            <Link
-              href={`/reminder/${next}`}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-[#dcc8ad] bg-[#f7efe2] px-4 py-3 text-sm text-[#6f5338] transition hover:bg-[#efe2cf] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b06a1a] focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffaf2]"
-            >
-              下一个
-              <ChevronRight className="h-4 w-4" />
-            </Link>
-          </div>
+        <div className="flex gap-3">
+          <Link
+            href={`/reminder/${previous}`}
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-[#dcc8ad] bg-white/70 px-4 py-3 text-sm text-[#6f5338] transition hover:bg-[#f7efdf] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b06a1a] focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffaf2]"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            上一个
+          </Link>
+          <Link
+            href={`/reminder/${next}`}
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-[#dcc8ad] bg-[#f7efe2] px-4 py-3 text-sm text-[#6f5338] transition hover:bg-[#efe2cf] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b06a1a] focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffaf2]"
+          >
+            下一个
+            <ChevronRight className="h-4 w-4" />
+          </Link>
         </div>
-      )}
+      </div>
     </AppShell>
   );
 }

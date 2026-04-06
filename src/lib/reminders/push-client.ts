@@ -1,3 +1,5 @@
+import type { ReminderSubscriptionRecord } from "./types";
+
 export function base64ToUint8Array(base64: string): Uint8Array<ArrayBuffer> {
   const normalized = base64.replace(/-/g, "+").replace(/_/g, "/");
   const padding = "=".repeat((4 - (normalized.length % 4)) % 4);
@@ -13,4 +15,12 @@ export function base64ToUint8Array(base64: string): Uint8Array<ArrayBuffer> {
   }
 
   return bytes as Uint8Array<ArrayBuffer>;
+}
+
+export function toReminderPushTarget(subscription: ReminderSubscriptionRecord) {
+  return {
+    endpoint: subscription.endpoint,
+    keys: subscription.keys,
+    expirationTime: subscription.expirationTime,
+  };
 }

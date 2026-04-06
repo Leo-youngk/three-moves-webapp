@@ -1,110 +1,126 @@
-import webpush from "web-push";
 import { NextResponse } from "next/server";
-import { PRIMARY_REMINDER_SLOT_ID, REMINDER_TIMEZONE, getReminderPrivateVapidKey, getReminderPublicVapidKey, getReminderSubject } from "@/lib/reminders/config";
+import { REMINDER_FIXED_SLOT } from "@/lib/reminders/config";
 import { buildReminderNotification } from "@/lib/reminders/payload";
+import { getDateKeyInTimeZone, listActiveReminderSubscriptionsForSlot } from "@/lib/reminders/domains";
+import { toReminderPushTarget } from "@/lib/reminders/push-client";
 import {
-  listActiveReminderSubscriptions,
-  loadReminderSubscriptionIndex,
+  createReminderSubscriptionStore,
   markReminderSubscriptionSent,
   revokeReminderSubscription,
-  saveReminderSubscriptionIndex,
 } from "@/lib/reminders/server-store";
+import { createWebPushReminderTransport } from "@/lib/reminders/transport";
+import { assertAuthorizedReminderDispatch } from "@/lib/platform/scheduler-adapter";
 
 export const runtime = "nodejs";
 
-function getDateKeyInTimeZone(date: Date, timeZone: string) {
-  const formatter = new Intl.DateTimeFormat("en-CA", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-  const parts = formatter.formatToParts(date);
-  const year = parts.find((part) => part.type === "year")?.value ?? "";
-  const month = parts.find((part) => part.type === "month")?.value ?? "";
-  const day = parts.find((part) => part.type === "day")?.value ?? "";
-  return `${year}-${month}-${day}`;
-}
+type DispatchError = {
+  reason: string;
+  message?: string;
+};
 
-function configureWebPush() {
-  const publicKey = getReminderPublicVapidKey();
-  const privateKey = getReminderPrivateVapidKey();
-  const subject = getReminderSubject();
-
-  if (!publicKey || !privateKey) {
-    throw new Error("缺少 VAPID 密钥");
-  }
-
-  webpush.setVapidDetails(subject, publicKey, privateKey);
+function createDispatchFailureResponse({
+  status,
+  reason,
+  message,
+}: {
+  status: number;
+  reason: string;
+  message?: string;
+}) {
+  return NextResponse.json(
+    {
+      success: false,
+      slot: REMINDER_FIXED_SLOT.id,
+      sent: [],
+      errors: [{ reason, message }],
+    },
+    { status },
+  );
 }
 
 async function sendReminderBatch() {
-  configureWebPush();
-
   const date = new Date();
-  const dateKey = getDateKeyInTimeZone(date, REMINDER_TIMEZONE);
+  const dateKey = getDateKeyInTimeZone(date);
+  const slotId = REMINDER_FIXED_SLOT.id;
   const payload = buildReminderNotification({
-    slotId: PRIMARY_REMINDER_SLOT_ID,
+    slotId,
     dateKey,
     todayItems: [],
   });
 
-  const index = await loadReminderSubscriptionIndex();
-  const targets = listActiveReminderSubscriptions(index).filter((subscription) => subscription.slotId === PRIMARY_REMINDER_SLOT_ID);
-  const results: Array<{ installId: string; status: "sent" | "revoked" | "skipped"; reason?: string }> = [];
+  const store = createReminderSubscriptionStore();
+  const transport = createWebPushReminderTransport();
+  const index = await store.loadIndex();
+  const targets = listActiveReminderSubscriptionsForSlot(index, slotId);
+  const sent: string[] = [];
+  const errors: Array<DispatchError & { installId?: string }> = [];
   let nextIndex = index;
 
   for (const subscription of targets) {
     try {
-      await webpush.sendNotification(
-        {
-          endpoint: subscription.endpoint,
-          keys: subscription.keys,
-          expirationTime: subscription.expirationTime ?? undefined,
-        },
-        JSON.stringify(payload),
-      );
+      await transport.send(toReminderPushTarget(subscription), payload);
 
       nextIndex = markReminderSubscriptionSent(nextIndex, subscription.installId, dateKey, new Date().toISOString());
-      results.push({ installId: subscription.installId, status: "sent" });
+      sent.push(subscription.installId);
     } catch (error) {
-      const statusCode = typeof error === "object" && error && "statusCode" in error ? Number((error as { statusCode?: unknown }).statusCode) : null;
+      const statusCode =
+        typeof error === "object" && error && "statusCode" in error
+          ? Number((error as { statusCode?: unknown }).statusCode)
+          : null;
+
       if (statusCode === 404 || statusCode === 410) {
         nextIndex = revokeReminderSubscription(nextIndex, subscription.installId, new Date().toISOString());
-        results.push({ installId: subscription.installId, status: "revoked", reason: "subscription-expired" });
+        errors.push({ installId: subscription.installId, reason: "subscription-expired" });
       } else {
-        results.push({
+        errors.push({
           installId: subscription.installId,
-          status: "skipped",
           reason: error instanceof Error ? error.message : "push-failed",
         });
       }
     }
   }
 
-  await saveReminderSubscriptionIndex(nextIndex);
+  await store.saveIndex(nextIndex);
 
-  return results;
+  return {
+    slot: slotId,
+    sent,
+    errors,
+  };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const unauthorized = assertAuthorizedReminderDispatch(request);
+  if (unauthorized) {
+    return unauthorized;
+  }
+
   try {
+    const requestedSlot = new URL(request.url).searchParams.get("slot");
+    if (requestedSlot && requestedSlot !== REMINDER_FIXED_SLOT.id) {
+      return createDispatchFailureResponse({
+        status: 400,
+        reason: "only-19-00-is-supported",
+        message: "Only slot 19-00 is supported",
+      });
+    }
+
     const results = await sendReminderBatch();
     return NextResponse.json({
-      ok: true,
-      results,
+      success: true,
+      slot: results.slot,
+      sent: results.sent,
+      errors: results.errors,
     });
   } catch (error) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error: error instanceof Error ? error.message : "提醒发送失败",
-      },
-      { status: 500 },
-    );
+    return createDispatchFailureResponse({
+      status: 500,
+      reason: "dispatch-failed",
+      message: error instanceof Error ? error.message : "Reminder dispatch failed",
+    });
   }
 }
 
-export async function POST() {
-  return GET();
+export async function POST(request: Request) {
+  return GET(request);
 }

@@ -9,8 +9,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-serif: var(--font-display);
+  --font-sans: system-ui, sans-serif;
+  --font-serif: Georgia, "Times New Roman", serif;
 }
 
 html {
@@ -27,7 +27,7 @@ body {
     radial-gradient(circle at top, rgba(199, 151, 100, 0.22), transparent 30%),
     linear-gradient(180deg, #f4ecde 0%, #efe2cf 100%);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 * {

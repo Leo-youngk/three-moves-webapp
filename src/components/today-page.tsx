@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ChevronRight, Save } from "lucide-react";
 import { AppShell } from "./app-shell";
+import { ReminderToggle } from "./reminder-toggle";
 import { useThreeMovesStore } from "@/hooks/use-three-moves-store";
 import { type DailyEntry } from "@/lib/domain/daily-entry";
 import { PRIMARY_REMINDER_PATH } from "@/lib/reminders/config";
@@ -124,6 +125,8 @@ export function TodayPage() {
       ) : (
         <div className="mx-auto flex w-full max-w-xl flex-col gap-5">
           <TodayForm key={`${todayEntry.dateKey}:${todayEntry.updatedAt}`} entry={todayEntry} onSave={saveTodayItems} />
+
+          <ReminderToggle />
 
           <div className="rounded-[24px] border border-[#e0cfba] bg-[#fffaf2]/80 p-4 text-sm leading-7 text-[#7b5a3e]">
             保存后会写入浏览器本地存储。刷新页面、关闭再打开都不会丢。

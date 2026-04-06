@@ -1,12 +1,8 @@
-import {
-  PRIMARY_REMINDER_PATH,
-  PRIMARY_REMINDER_SLOT_ID,
-  PRIMARY_REMINDER_TIME,
-  REMINDER_NOTIFICATION_TITLE,
-} from "./config";
+import { PRIMARY_REMINDER_TIME, REMINDER_NOTIFICATION_TITLE } from "./config";
+import { getReminderNotificationUrl } from "./domains";
 import type { ReminderNotificationPayload } from "./types";
 
-export { PRIMARY_REMINDER_PATH, PRIMARY_REMINDER_SLOT_ID } from "./config";
+export { PRIMARY_REMINDER_SLOT_ID } from "./config";
 
 export function buildReminderNotification({
   slotId,
@@ -26,7 +22,7 @@ export function buildReminderNotification({
   return {
     title: REMINDER_NOTIFICATION_TITLE,
     body,
-    url: slotId === PRIMARY_REMINDER_SLOT_ID ? PRIMARY_REMINDER_PATH : `/reminder/${slotId}`,
+    url: getReminderNotificationUrl(slotId),
     tag: `three-moves-reminder:${dateKey}:${slotId}`,
   };
 }

@@ -1,4 +1,7 @@
-const PRIMARY_REMINDER_PATH = "/reminder/5";
+const PRIMARY_REMINDER_PATH = "/reminder/19-00";
+const DEFAULT_NOTIFICATION_TITLE = "Three Moves 提醒";
+const DEFAULT_NOTIFICATION_BODY = "19:00 了，打开 Three Moves 看看今天的三件事。";
+const DEFAULT_NOTIFICATION_TAG = "three-moves-reminder";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(self.skipWaiting());
@@ -10,14 +13,15 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("push", (event) => {
   const payload = event.data ? event.data.json() : {};
-  const title = payload.title || "Three Moves 提醒";
-  const body = payload.body || "19:00 了，打开 Three Moves 看看今天的三件事。";
-  const url = payload.url || PRIMARY_REMINDER_PATH;
+  const title = typeof payload.title === "string" && payload.title.length > 0 ? payload.title : DEFAULT_NOTIFICATION_TITLE;
+  const body = typeof payload.body === "string" && payload.body.length > 0 ? payload.body : DEFAULT_NOTIFICATION_BODY;
+  const url = typeof payload.url === "string" && payload.url.length > 0 ? payload.url : PRIMARY_REMINDER_PATH;
+  const tag = typeof payload.tag === "string" && payload.tag.length > 0 ? payload.tag : DEFAULT_NOTIFICATION_TAG;
 
   event.waitUntil(
     self.registration.showNotification(title, {
       body,
-      tag: payload.tag || "three-moves-reminder",
+      tag,
       data: {
         url,
       },
