@@ -20,7 +20,7 @@ function getBrowserTimezone() {
 
 export function ReminderToggle() {
   const [state, setState] = useState<ReminderToggleState>("checking");
-  const [message, setMessage] = useState("正在检查提醒权限和订阅状态");
+  const [message, setMessage] = useState("正在检查提醒权限和订阅状态。");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -31,7 +31,16 @@ export function ReminderToggle() {
         if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
           if (!cancelled) {
             setState("unsupported");
-            setMessage("当前浏览器不支持 Web Push，请改用 iPhone Safari 并加入主屏幕后再试。");
+            setMessage("当前浏览器不支持 Web Push，请使用 iPhone Safari 并加入主屏幕后再试。");
+          }
+          return;
+        }
+
+        const publicKey = getReminderPublicVapidKey();
+        if (!publicKey) {
+          if (!cancelled) {
+            setState("error");
+            setMessage("缺少 NEXT_PUBLIC_VAPID_PUBLIC_KEY，请先在 EdgeOne 配好公钥后再开启提醒。");
           }
           return;
         }
@@ -45,22 +54,22 @@ export function ReminderToggle() {
 
         if (subscription) {
           setState("enabled");
-          setMessage(`已开启 ${FIXED_REMINDER_TIME} 固定提醒`);
+          setMessage(`已开启 ${FIXED_REMINDER_TIME} 固定提醒。`);
           return;
         }
 
         if (Notification.permission === "denied") {
           setState("denied");
-          setMessage("通知权限已被拒绝。请在浏览器设置里重新允许后再开启提醒。");
+          setMessage("通知权限已被拒绝，请在浏览器设置里重新允许后再开启提醒。");
           return;
         }
 
         setState("disabled");
-        setMessage(`尚未开启 ${FIXED_REMINDER_TIME} 提醒`);
+        setMessage(`尚未开启 ${FIXED_REMINDER_TIME} 提醒。`);
       } catch {
         if (!cancelled) {
           setState("error");
-          setMessage("提醒状态检查失败。请刷新页面后重试。");
+          setMessage("提醒状态检查失败，请刷新页面后重试。");
         }
       }
     }
@@ -81,7 +90,7 @@ export function ReminderToggle() {
     }
 
     setBusy(true);
-    setMessage("正在处理提醒设置");
+    setMessage("正在处理提醒设置。");
 
     try {
       const registration = await navigator.serviceWorker.ready;
@@ -109,17 +118,18 @@ export function ReminderToggle() {
         }
 
         setState("disabled");
-        setMessage(`已关闭 ${FIXED_REMINDER_TIME} 提醒`);
+        setMessage(`已关闭 ${FIXED_REMINDER_TIME} 提醒。`);
         return;
       }
 
       const publicKey = getReminderPublicVapidKey();
       if (!publicKey) {
-        throw new Error("缺少 VAPID 公钥");
+        setState("error");
+        setMessage("缺少 NEXT_PUBLIC_VAPID_PUBLIC_KEY，请先在 EdgeOne 配好公钥后再开启提醒。");
+        return;
       }
 
-      const permission =
-        Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
+      const permission = Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
 
       if (permission !== "granted") {
         setState(permission === "denied" ? "denied" : "disabled");
@@ -136,7 +146,7 @@ export function ReminderToggle() {
 
       const normalized = subscription.toJSON();
       if (!normalized.endpoint || !normalized.keys?.p256dh || !normalized.keys.auth) {
-        throw new Error("订阅数据不完整");
+        throw new Error("订阅数据不完整。");
       }
 
       const response = await fetch("/api/reminders/subscription", {
@@ -165,10 +175,10 @@ export function ReminderToggle() {
       }
 
       setState("enabled");
-      setMessage(`已开启 ${FIXED_REMINDER_TIME} 固定提醒`);
+      setMessage(`已开启 ${FIXED_REMINDER_TIME} 固定提醒。`);
     } catch {
       setState("error");
-      setMessage("提醒设置失败，请稍后重试。");
+      setMessage("提醒设置失败，请先补齐 VAPID 配置后重试。");
     } finally {
       setBusy(false);
     }
@@ -181,7 +191,7 @@ export function ReminderToggle() {
           <p className="text-xs uppercase tracking-[0.24em] text-[#b2855e]">提醒</p>
           <h2 className="mt-2 text-xl font-semibold tracking-tight text-[#241407]">开启 19:00 固定提醒</h2>
           <p className="mt-2 text-sm leading-6 text-[#7b5a3e]">
-            只保留一个时段。加入主屏幕后，手机会在固定时间收到通知，点开后进入 {FIXED_REMINDER_PATH}。
+            只保留一个时段。加入主屏幕后，手机会在固定时间收到通知，点开后进入{FIXED_REMINDER_PATH}。
           </p>
         </div>
         <div

@@ -12,13 +12,13 @@ const mocks = vi.hoisted(() => {
   };
 });
 
-vi.mock("@/lib/platform/scheduler-adapter", () => ({
+vi.mock("../../../../lib/platform/scheduler-adapter", () => ({
   assertAuthorizedReminderDispatch: mocks.assertAuthorizedReminderDispatch,
 }));
 
-vi.mock("@/lib/reminders/server-store", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/reminders/server-store")>(
-    "@/lib/reminders/server-store",
+vi.mock("../../../../lib/reminders/server-store", async () => {
+  const actual = await vi.importActual<typeof import("../../../../lib/reminders/server-store")>(
+    "../../../../lib/reminders/server-store",
   );
 
   return {
@@ -27,7 +27,7 @@ vi.mock("@/lib/reminders/server-store", async () => {
   };
 });
 
-vi.mock("@/lib/reminders/transport", () => ({
+vi.mock("../../../../lib/reminders/transport", () => ({
   createWebPushReminderTransport: mocks.createWebPushReminderTransport,
 }));
 

@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { resetCloudBaseAppForTest } from "./cloudbase-client";
 import { createReminderSubscriptionStorageAdapter } from "./storage-adapter";
 
 const originalEnv = {
@@ -21,9 +20,6 @@ const cloudbaseMocks = vi.hoisted(() => {
     collection,
     createCollection,
   }));
-  const init = vi.fn(() => ({
-    database,
-  }));
 
   return {
     docGet,
@@ -32,25 +28,23 @@ const cloudbaseMocks = vi.hoisted(() => {
     collection,
     createCollection,
     database,
-    init,
   };
 });
 
-vi.mock("@cloudbase/node-sdk", () => ({
-  default: {
-    init: cloudbaseMocks.init,
-  },
+vi.mock("./cloudbase-client", () => ({
+  getCloudBaseApp: () => ({
+    database: cloudbaseMocks.database,
+  }),
+  resetCloudBaseAppForTest: vi.fn(),
 }));
 
 afterEach(() => {
   process.env = { ...originalEnv };
   vi.clearAllMocks();
-  resetCloudBaseAppForTest();
 });
 
 describe("storage adapter", () => {
   it("loads and saves the reminder subscription index through CloudBase SDK", async () => {
-    process.env.CLOUDBASE_APIKEY = "cloudbase-key";
     cloudbaseMocks.docGet.mockResolvedValue({
       data: [
         {
@@ -78,11 +72,6 @@ describe("storage adapter", () => {
 
     expect(index.version).toBe(1);
     expect(index.subscriptions.alpha?.installId).toBe("alpha");
-    expect(cloudbaseMocks.init).toHaveBeenCalledWith(
-      expect.objectContaining({
-        env: "three-moves-cn-prod-1c372186c953",
-      }),
-    );
     expect(cloudbaseMocks.collection).toHaveBeenCalledWith("tm_reminder_subs");
     expect(cloudbaseMocks.createCollection).toHaveBeenCalledWith("tm_reminder_subs");
     expect(cloudbaseMocks.doc).toHaveBeenCalledWith("current");
